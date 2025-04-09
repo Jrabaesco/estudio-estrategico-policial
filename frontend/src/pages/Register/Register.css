@@ -1,0 +1,39 @@
+.registro-usuario {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+  }
+  
+  .registro-usuario .imgFondo {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+  
+  .registro-usuario .imgFondo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .registro-usuario form {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    width: 400px;
+  }
+  
+  .registro-usuario form img {
+    width: 100px;
+    margin-bottom: 1rem;
+  }
+  
+  .registro-usuario form input {
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+  }

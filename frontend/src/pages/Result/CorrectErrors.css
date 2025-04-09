@@ -1,0 +1,170 @@
+.topic-detail {
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .title_exam {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .name_usuario {
+    text-align: right;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .contenedor_examen {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .contenedor_caja_preguntas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 150px;
+  }
+  
+  .caja_numero_preguntas {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  
+  .caja_numero_preguntas.answered {
+    background-color: #ff6b6b;
+    color: white;
+  }
+  
+  .datos_preguntas {
+    flex: 1;
+  }
+  
+  .mobile-header {
+    display: none;
+  }
+  
+  .encabezamiento_pregunta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .pregunta_completa {
+    margin-bottom: 20px;
+  }
+  
+  .pregunta {
+    margin-bottom: 20px;
+  }
+  
+  .todas_alternativas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .alternativas {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .alternativas.correct {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+  }
+  
+  .alternativas.incorrect {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+  }
+  
+  .alternativas.show-correct {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+  }
+  
+  .registro_respuestas {
+    margin: 20px 0;
+  }
+  
+  .resumen_resultado {
+    display: flex;
+    justify-content: space-around;
+    list-style: none;
+    padding: 0;
+  }
+  
+  .numero_letra_respuestas {
+    font-family: monospace;
+    margin: 10px 0;
+    word-break: break-all;
+  }
+  
+  .botones {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .botones_ayuda {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .loading, .error {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2em;
+  }
+  
+  @media (max-width: 768px) {
+    .contenedor_examen {
+      flex-direction: column;
+    }
+    
+    .contenedor_caja_preguntas {
+      display: none;
+      width: 100%;
+    }
+    
+    .contenedor_caja_preguntas.active {
+      display: flex;
+    }
+    
+    .mobile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .encabezamiento_pregunta {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .resumen_resultado {
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .botones {
+      flex-wrap: wrap;
+    }
+  }

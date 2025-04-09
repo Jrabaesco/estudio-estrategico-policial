@@ -1,22 +1,24 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import User from '../models/User.js';
 
-dotenv.config();
-
-export const auth = (req, res, next) => {
+export const auth = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     
     if (!token) {
-      return res.status(401).json({ message: 'Autenticación fallida' });
+      return res.status(401).json({ message: 'No se proporcionó token de autenticación' });
     }
-    
+
     const decodedData = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decodedData?.id;
-    
+    const user = await User.findById(decodedData.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    req.userId = decodedData.id;
     next();
   } catch (error) {
-    console.error(error);
-    res.status(401).json({ message: 'Autenticación fallida' });
+    res.status(401).json({ message: 'Token inválido o expirado', error: error.message });
   }
 };
