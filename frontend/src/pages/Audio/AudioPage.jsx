@@ -18,6 +18,7 @@ const AudioPage = () => {
   const [voicesReady, setVoicesReady] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [autoAdvance, setAutoAdvance] = useState(true);
+  const [currentlySpeaking, setCurrentlySpeaking] = useState(null);
   
   const speechSynthesisRef = useRef(null);
   const currentUtteranceRef = useRef(null);
@@ -35,15 +36,17 @@ const AudioPage = () => {
     if ('speechSynthesis' in window) {
       speechSynthesisRef.current = window.speechSynthesis;
       
-      // Esperar a que las voces estén cargadas
       const checkVoices = () => {
         const voices = speechSynthesisRef.current.getVoices();
         if (voices.length > 0) {
           setVoicesReady(true);
+          console.log('Voces disponibles:', voices);
+        } else {
+          // Reintentar después de un breve retraso si no hay voces
+          setTimeout(checkVoices, 500);
         }
       };
       
-      // Chrome necesita esto para cargar las voces
       speechSynthesisRef.current.onvoiceschanged = checkVoices;
       checkVoices();
     } else {
@@ -70,7 +73,6 @@ const AudioPage = () => {
     fetchData();
 
     return () => {
-      // Limpieza al desmontar el componente
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       if (speechSynthesisRef.current) {
         speechSynthesisRef.current.cancel();
@@ -89,11 +91,28 @@ const AudioPage = () => {
     
     if (spanishVoices.length === 0) return null;
     
-    // Intentar encontrar una voz del género solicitado
+    // Priorizar voces específicas
+    const preferredMaleNames = ['Microsoft Pablo', 'Google español', 'Jorge'];
+    const preferredFemaleNames = ['Microsoft Helena', 'Google español de Estados Unidos', 'Paulina'];
+    
+    // Buscar voces preferidas primero
+    const preferredVoices = spanishVoices.filter(v => 
+      gender === 'male' 
+        ? preferredMaleNames.some(name => v.name.includes(name))
+        : preferredFemaleNames.some(name => v.name.includes(name))
+    );
+    
+    if (preferredVoices.length > 0) return preferredVoices[0];
+    
+    // Si no hay voces preferidas, buscar por género
     const genderVoices = spanishVoices.filter(v => 
       gender === 'male' 
-        ? v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('hombre')
-        : v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('mujer')
+        ? v.name.toLowerCase().includes('male') || 
+          v.name.toLowerCase().includes('hombre') ||
+          v.name.toLowerCase().includes('man')
+        : v.name.toLowerCase().includes('female') || 
+          v.name.toLowerCase().includes('mujer') ||
+          v.name.toLowerCase().includes('woman')
     );
     
     // Si no hay voces del género, usar cualquier voz en español
@@ -101,33 +120,42 @@ const AudioPage = () => {
   };
 
   const speak = (text, voiceType = 'male', onEndCallback = null) => {
-    if (!speechSynthesisRef.current || !voicesReady) return;
+    if (!speechSynthesisRef.current || !voicesReady) {
+      console.error('Speech synthesis not available or voices not loaded');
+      return;
+    }
 
-    // Cancelar cualquier reproducción anterior
     speechSynthesisRef.current.cancel();
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    const voice = getVoice(voiceType);
-    
-    if (voice) {
-      utterance.voice = voice;
+    try {
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voice = getVoice(voiceType);
+      
+      if (voice) {
+        utterance.voice = voice;
+        utterance.lang = voice.lang;
+      } else {
+        utterance.lang = 'es-ES';
+      }
+      
+      utterance.rate = playbackRate;
+      utterance.pitch = 1.0;
+
+      utterance.onend = (event) => {
+        if (onEndCallback) onEndCallback(event);
+      };
+
+      utterance.onerror = (event) => {
+        console.error('Error en la reproducción:', event);
+        if (onEndCallback) onEndCallback(event);
+      };
+
+      currentUtteranceRef.current = utterance;
+      speechSynthesisRef.current.speak(utterance);
+    } catch (error) {
+      console.error('Error al crear utterance:', error);
     }
-    
-    utterance.lang = 'es-ES';
-    utterance.rate = playbackRate;
-    utterance.pitch = 1.0;
-
-    if (onEndCallback) {
-      utterance.onend = onEndCallback;
-    }
-
-    utterance.onerror = (event) => {
-      console.error('Error en la reproducción:', event);
-    };
-
-    currentUtteranceRef.current = utterance;
-    speechSynthesisRef.current.speak(utterance);
   };
 
   const playCurrentQuestion = () => {
@@ -136,16 +164,17 @@ const AudioPage = () => {
     const currentQuestion = questions[currentQuestionIndex];
     if (!currentQuestion) return;
 
-    // Leer pregunta con voz masculina
+    setCurrentlySpeaking('question');
     speak(`Pregunta número ${currentQuestionIndex + 1}. ${currentQuestion.question_text}`, 'male', () => {
+      setCurrentlySpeaking('options');
+      
       if (audioMode === 'all') {
-        // Leer todas las alternativas con voz femenina
         speak(`Alternativas: ${currentQuestion.options.map((opt, i) => 
           `${String.fromCharCode(65 + i)}. ${opt}`).join('. ')}`, 'female', () => {
-          // Leer respuesta correcta
+          setCurrentlySpeaking('answer');
           const correctIndex = currentQuestion.options.indexOf(currentQuestion.correct_option);
           speak(`Respuesta correcta: ${String.fromCharCode(65 + correctIndex)}. ${currentQuestion.correct_option}`, 'female', () => {
-            // Avanzar automáticamente si está habilitado
+            setCurrentlySpeaking(null);
             if (autoAdvance && isPlaying && currentQuestionIndex < questions.length - 1) {
               timeoutRef.current = setTimeout(() => {
                 handleNext();
@@ -154,10 +183,9 @@ const AudioPage = () => {
           });
         });
       } else {
-        // Solo leer la respuesta correcta
         const correctIndex = currentQuestion.options.indexOf(currentQuestion.correct_option);
         speak(`Alternativa correcta: ${String.fromCharCode(65 + correctIndex)}. ${currentQuestion.correct_option}`, 'female', () => {
-          // Avanzar automáticamente si está habilitado
+          setCurrentlySpeaking(null);
           if (autoAdvance && isPlaying && currentQuestionIndex < questions.length - 1) {
             timeoutRef.current = setTimeout(() => {
               handleNext();
@@ -190,6 +218,7 @@ const AudioPage = () => {
     }
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setIsPlaying(false);
+    setCurrentlySpeaking(null);
   };
 
   const handleNext = () => {
@@ -212,7 +241,6 @@ const AudioPage = () => {
 
   const handleRateChange = (rate) => {
     setPlaybackRate(rate);
-    // Reiniciar la reproducción con la nueva velocidad
     if (isPlaying) {
       handleStop();
       setTimeout(() => {
@@ -245,34 +273,28 @@ const AudioPage = () => {
       </div>
 
       <div className="seleccionar_como_escuchar">
-        <ol>
-          <li>
-            <input 
-              type="radio" 
-              name="audioMode" 
-              checked={audioMode === 'all'}
-              onChange={() => handleModeChange('all')}
-            /> 
-            ESCUCHAR TODAS LAS ALTERNATIVAS
-          </li>
-          <li>
-            <input 
-              type="radio" 
-              name="audioMode" 
-              checked={audioMode === 'correct'}
-              onChange={() => handleModeChange('correct')}
-            /> 
-            ESCUCHAR SOLO ALTERNATIVA CORRECTA
-          </li>
-          <li>
+        <div className="mode-selector">
+          <button 
+            className={`mode-button ${audioMode === 'all' ? 'active' : ''}`}
+            onClick={() => handleModeChange('all')}
+          >
+            Todas las alternativas
+          </button>
+          <button 
+            className={`mode-button ${audioMode === 'correct' ? 'active' : ''}`}
+            onClick={() => handleModeChange('correct')}
+          >
+            Solo correcta
+          </button>
+          <label className="auto-advance-toggle">
             <input 
               type="checkbox" 
               checked={autoAdvance}
               onChange={() => setAutoAdvance(!autoAdvance)}
             />
-            AVANCE AUTOMÁTICO
-          </li>
-        </ol>
+            Avance automático
+          </label>
+        </div>
 
         <div className="playback-controls">
           <label>Velocidad:</label>
@@ -336,14 +358,20 @@ const AudioPage = () => {
           </div>
 
           <div className="pregunta_completa">
-            <div className="pregunta">
+            <div className={`pregunta ${currentlySpeaking === 'question' ? 'speaking' : ''}`}>
               <span>{currentQuestionIndex + 1}.</span>
               <label>{currentQuestion.question_text}</label>
             </div>
             
             <div className="todas_alternativas">
               {currentQuestion.options?.map((option, index) => (
-                <div key={index} className="alternativas">
+                <div 
+                  key={index} 
+                  className={`alternativas ${
+                    (currentlySpeaking === 'options' || currentlySpeaking === 'answer') && 
+                    (audioMode === 'all' || option === currentQuestion.correct_option) ? 'speaking' : ''
+                  }`}
+                >
                   <div>
                     <input 
                       type="radio" 
