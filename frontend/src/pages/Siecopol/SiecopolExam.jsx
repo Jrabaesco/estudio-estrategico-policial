@@ -47,7 +47,6 @@ const SiecopolExam = () => {
   const [showColors, setShowColors] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [topicsData, setTopicsData] = useState({});
   const [topicProgress, setTopicProgress] = useState({});
 
   // Función para mezclar arrays (solo para alternativas)
@@ -59,6 +58,29 @@ const SiecopolExam = () => {
     }
     return newArray;
   }, []);
+
+  // Función para enviar el examen
+  const submitExam = useCallback(() => {
+    const correct = answers.filter(a => a?.isCorrect).length;
+    navigate('/resultado', {
+      state: {
+        correct,
+        incorrect: answers.filter(a => a && !a.isCorrect).length,
+        unanswered: questions.length - answers.filter(a => a).length,
+        total: questions.length,
+        timeUsed: EXAM_DURATION - timeLeft,
+        examType: 'SIECOPOL',
+        answers,
+        questions
+      }
+    });
+  }, [answers, questions, timeLeft, navigate]);
+
+  // Función para finalización automática
+  const handleAutoFinish = useCallback(() => {
+    alert('¡El tiempo ha terminado! Su examen será enviado automáticamente.');
+    submitExam();
+  }, [submitExam]);
 
   // Cargar datos iniciales (temas y preguntas)
   useEffect(() => {
@@ -74,13 +96,6 @@ const SiecopolExam = () => {
 
         // 1. Obtener todos los temas primero
         const topicsResponse = await api.get('/topics');
-        const topicsMap = {};
-        topicsResponse.data.forEach(topic => {
-          topicsMap[topic._id] = topic;
-        });
-        setTopicsData(topicsMap);
-
-        // 2. Obtener preguntas aleatorias por tema en orden
         const questionsByTopic = [];
         const progress = {};
 
@@ -93,18 +108,21 @@ const SiecopolExam = () => {
               options: shuffleArray(q.options) // Mezclar alternativas
             }));
 
-            questionsByTopic.push(...topicQuestions);
+            // Encontrar el tema correspondiente
+            const topic = topicsResponse.data.find(t => t._id === topicId);
             
             // Configurar progreso para este tema
             progress[topicId] = {
-              name: topicsMap[topicId]?.name || topicId,
-              shortName: topicsMap[topicId]?.short_name || topicId,
+              name: topic?.name || topicId,
+              shortName: topic?.short_name || topicId,
               total: count,
               indexes: Array.from(
                 { length: count }, 
                 (_, i) => questionsByTopic.length - count + i
               )
             };
+
+            questionsByTopic.push(...topicQuestions);
           }
         }
 
@@ -151,7 +169,7 @@ const SiecopolExam = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [questions]);
+  }, [questions, handleAutoFinish]);
 
   // Obtener información del tema actual
   const getCurrentTopicInfo = () => {
@@ -226,27 +244,6 @@ const SiecopolExam = () => {
     if (window.confirm('¿Estás seguro que deseas finalizar el examen?')) {
       submitExam();
     }
-  };
-
-  const handleAutoFinish = () => {
-    alert('¡El tiempo ha terminado! Su examen será enviado automáticamente.');
-    submitExam();
-  };
-
-  const submitExam = () => {
-    const correct = answers.filter(a => a?.isCorrect).length;
-    navigate('/resultado', {
-      state: {
-        correct,
-        incorrect: answers.filter(a => a && !a.isCorrect).length,
-        unanswered: questions.length - answers.filter(a => a).length,
-        total: questions.length,
-        timeUsed: EXAM_DURATION - timeLeft,
-        examType: 'SIECOPOL',
-        answers,
-        questions
-      }
-    });
   };
 
   // Reiniciar examen

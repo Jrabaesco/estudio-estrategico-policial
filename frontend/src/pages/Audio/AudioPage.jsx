@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../services/auth';
 import api from '../../services/api';
@@ -10,14 +10,18 @@ const AudioPage = () => {
   const [user, setUser] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [answers, setAnswers] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audioMode, setAudioMode] = useState('all'); // 'all' o 'correct'
+  const [audioMode, setAudioMode] = useState('all');
   const [startQuestion, setStartQuestion] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [topic, setTopic] = useState(null);
-  const [speechSynthesis, setSpeechSynthesis] = useState(null);
+  const [voicesReady, setVoicesReady] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [autoAdvance, setAutoAdvance] = useState(true);
+  
+  const speechSynthesisRef = useRef(null);
+  const currentUtteranceRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -27,9 +31,21 @@ const AudioPage = () => {
     }
     setUser(currentUser);
 
-    // Verificar si el navegador soporta speechSynthesis
+    // Configurar speechSynthesis
     if ('speechSynthesis' in window) {
-      setSpeechSynthesis(window.speechSynthesis);
+      speechSynthesisRef.current = window.speechSynthesis;
+      
+      // Esperar a que las voces estén cargadas
+      const checkVoices = () => {
+        const voices = speechSynthesisRef.current.getVoices();
+        if (voices.length > 0) {
+          setVoicesReady(true);
+        }
+      };
+      
+      // Chrome necesita esto para cargar las voces
+      speechSynthesisRef.current.onvoiceschanged = checkVoices;
+      checkVoices();
     } else {
       alert('Tu navegador no soporta la funcionalidad de texto a voz');
     }
@@ -52,64 +68,104 @@ const AudioPage = () => {
     };
 
     fetchData();
+
+    return () => {
+      // Limpieza al desmontar el componente
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (speechSynthesisRef.current) {
+        speechSynthesisRef.current.cancel();
+      }
+      if (currentUtteranceRef.current) {
+        currentUtteranceRef.current.onend = null;
+      }
+    };
   }, [topicId, navigate]);
 
-  const speak = (text, voiceType = 'male') => {
-    if (!speechSynthesis) return;
+  const getVoice = (gender = 'male') => {
+    if (!speechSynthesisRef.current) return null;
+    
+    const voices = speechSynthesisRef.current.getVoices();
+    const spanishVoices = voices.filter(v => v.lang.includes('es'));
+    
+    if (spanishVoices.length === 0) return null;
+    
+    // Intentar encontrar una voz del género solicitado
+    const genderVoices = spanishVoices.filter(v => 
+      gender === 'male' 
+        ? v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('hombre')
+        : v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('mujer')
+    );
+    
+    // Si no hay voces del género, usar cualquier voz en español
+    return genderVoices.length > 0 ? genderVoices[0] : spanishVoices[0];
+  };
 
-    // Cancelar cualquier habla en curso
-    speechSynthesis.cancel();
+  const speak = (text, voiceType = 'male', onEndCallback = null) => {
+    if (!speechSynthesisRef.current || !voicesReady) return;
+
+    // Cancelar cualquier reproducción anterior
+    speechSynthesisRef.current.cancel();
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     const utterance = new SpeechSynthesisUtterance(text);
+    const voice = getVoice(voiceType);
     
-    // Seleccionar voz según el tipo (masculino/femenino)
-    const voices = speechSynthesis.getVoices();
-    const preferredVoice = voices.find(voice => {
-      if (voiceType === 'male') {
-        return voice.name.includes('Male') || voice.lang.includes('es-MX') || voice.lang.includes('es-ES');
-      } else {
-        return voice.name.includes('Female') || voice.lang.includes('es-US');
-      }
-    });
-
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
+    if (voice) {
+      utterance.voice = voice;
     }
-
+    
     utterance.lang = 'es-ES';
-    utterance.rate = 0.9;
+    utterance.rate = playbackRate;
     utterance.pitch = 1.0;
 
-    speechSynthesis.speak(utterance);
+    if (onEndCallback) {
+      utterance.onend = onEndCallback;
+    }
+
+    utterance.onerror = (event) => {
+      console.error('Error en la reproducción:', event);
+    };
+
+    currentUtteranceRef.current = utterance;
+    speechSynthesisRef.current.speak(utterance);
   };
 
   const playCurrentQuestion = () => {
     if (questions.length === 0 || currentQuestionIndex >= questions.length) return;
 
     const currentQuestion = questions[currentQuestionIndex];
-    
+    if (!currentQuestion) return;
+
     // Leer pregunta con voz masculina
-    speak(`Pregunta número ${currentQuestionIndex + 1}. ${currentQuestion.question_text}`, 'male');
-    
-    if (audioMode === 'all') {
-      // Leer todas las alternativas con voz femenina
-      setTimeout(() => {
+    speak(`Pregunta número ${currentQuestionIndex + 1}. ${currentQuestion.question_text}`, 'male', () => {
+      if (audioMode === 'all') {
+        // Leer todas las alternativas con voz femenina
         speak(`Alternativas: ${currentQuestion.options.map((opt, i) => 
-          `${String.fromCharCode(65 + i)}. ${opt}`).join('. ')}`, 'female');
-        
-        // Leer respuesta correcta
-        setTimeout(() => {
+          `${String.fromCharCode(65 + i)}. ${opt}`).join('. ')}`, 'female', () => {
+          // Leer respuesta correcta
           const correctIndex = currentQuestion.options.indexOf(currentQuestion.correct_option);
-          speak(`Respuesta correcta: ${String.fromCharCode(65 + correctIndex)}. ${currentQuestion.correct_option}`, 'female');
-        }, 3000);
-      }, 3000);
-    } else {
-      // Solo leer la respuesta correcta
-      setTimeout(() => {
+          speak(`Respuesta correcta: ${String.fromCharCode(65 + correctIndex)}. ${currentQuestion.correct_option}`, 'female', () => {
+            // Avanzar automáticamente si está habilitado
+            if (autoAdvance && isPlaying && currentQuestionIndex < questions.length - 1) {
+              timeoutRef.current = setTimeout(() => {
+                handleNext();
+              }, 1000);
+            }
+          });
+        });
+      } else {
+        // Solo leer la respuesta correcta
         const correctIndex = currentQuestion.options.indexOf(currentQuestion.correct_option);
-        speak(`Alternativa correcta: ${String.fromCharCode(65 + correctIndex)}. ${currentQuestion.correct_option}`, 'female');
-      }, 3000);
-    }
+        speak(`Alternativa correcta: ${String.fromCharCode(65 + correctIndex)}. ${currentQuestion.correct_option}`, 'female', () => {
+          // Avanzar automáticamente si está habilitado
+          if (autoAdvance && isPlaying && currentQuestionIndex < questions.length - 1) {
+            timeoutRef.current = setTimeout(() => {
+              handleNext();
+            }, 1000);
+          }
+        });
+      }
+    });
   };
 
   const handlePlay = () => {
@@ -120,25 +176,25 @@ const AudioPage = () => {
 
     setCurrentQuestionIndex(startQuestion - 1);
     setIsPlaying(true);
-    playCurrentQuestion();
   };
 
-  const handleStop = () => {
-    if (speechSynthesis) {
-      speechSynthesis.cancel();
+  useEffect(() => {
+    if (isPlaying) {
+      playCurrentQuestion();
     }
+  }, [isPlaying, currentQuestionIndex, audioMode, playbackRate]);
+
+  const handleStop = () => {
+    if (speechSynthesisRef.current) {
+      speechSynthesisRef.current.cancel();
+    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setIsPlaying(false);
   };
 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => {
-        const newIndex = prev + 1;
-        if (isPlaying) {
-          playCurrentQuestion();
-        }
-        return newIndex;
-      });
+      setCurrentQuestionIndex(prev => prev + 1);
     } else {
       handleStop();
     }
@@ -146,20 +202,22 @@ const AudioPage = () => {
 
   const handlePrev = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => {
-        const newIndex = prev - 1;
-        if (isPlaying) {
-          playCurrentQuestion();
-        }
-        return newIndex;
-      });
+      setCurrentQuestionIndex(prev => prev - 1);
     }
   };
 
   const handleModeChange = (mode) => {
     setAudioMode(mode);
+  };
+
+  const handleRateChange = (rate) => {
+    setPlaybackRate(rate);
+    // Reiniciar la reproducción con la nueva velocidad
     if (isPlaying) {
-      playCurrentQuestion();
+      handleStop();
+      setTimeout(() => {
+        setIsPlaying(true);
+      }, 100);
     }
   };
 
@@ -206,7 +264,43 @@ const AudioPage = () => {
             /> 
             ESCUCHAR SOLO ALTERNATIVA CORRECTA
           </li>
+          <li>
+            <input 
+              type="checkbox" 
+              checked={autoAdvance}
+              onChange={() => setAutoAdvance(!autoAdvance)}
+            />
+            AVANCE AUTOMÁTICO
+          </li>
         </ol>
+
+        <div className="playback-controls">
+          <label>Velocidad:</label>
+          <button 
+            onClick={() => handleRateChange(0.5)} 
+            className={playbackRate === 0.5 ? 'active' : ''}
+          >
+            Lento (0.5x)
+          </button>
+          <button 
+            onClick={() => handleRateChange(1)} 
+            className={playbackRate === 1 ? 'active' : ''}
+          >
+            Normal (1x)
+          </button>
+          <button 
+            onClick={() => handleRateChange(1.5)} 
+            className={playbackRate === 1.5 ? 'active' : ''}
+          >
+            Rápido (1.5x)
+          </button>
+          <button 
+            onClick={() => handleRateChange(2)} 
+            className={playbackRate === 2 ? 'active' : ''}
+          >
+            Muy rápido (2x)
+          </button>
+        </div>
 
         <div className="opciones_de_audio">
           <div className="input-container">
@@ -230,11 +324,15 @@ const AudioPage = () => {
           </div>
           
           <div className="botones_reproduccion">
-            <button onClick={handlePrev} disabled={currentQuestionIndex === 0}>Anterior</button>
+            <button onClick={handlePrev} disabled={currentQuestionIndex === 0 || isPlaying}>
+              Anterior
+            </button>
             <button onClick={isPlaying ? handleStop : handlePlay}>
               {isPlaying ? 'PAUSE' : 'PLAY'}
             </button>
-            <button onClick={handleNext} disabled={currentQuestionIndex === questions.length - 1}>Siguiente</button>
+            <button onClick={handleNext} disabled={currentQuestionIndex === questions.length - 1 || isPlaying}>
+              Siguiente
+            </button>
           </div>
 
           <div className="pregunta_completa">
@@ -261,7 +359,9 @@ const AudioPage = () => {
           </div>
         </div>
         
-        <button onClick={() => navigate('/audio')} className="back-button">Escoger otro tema</button>
+        <button onClick={() => navigate('/audio')} className="back-button">
+          Escoger otro tema
+        </button>
       </div>
     </div>
   );
