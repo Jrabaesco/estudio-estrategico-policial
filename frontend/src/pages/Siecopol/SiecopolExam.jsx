@@ -44,7 +44,7 @@ const SiecopolExam = () => {
   const [answers, setAnswers] = useState([]);
   const [showQuestionNumbers, setShowQuestionNumbers] = useState(false);
   const [timeLeft, setTimeLeft] = useState(EXAM_DURATION);
-  const [showColors, setShowColors] = useState(true);
+  const [showColors, setShowColors] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [topicProgress, setTopicProgress] = useState({});
@@ -305,7 +305,7 @@ const SiecopolExam = () => {
   const incorrectCount = answers.filter(a => a && !a.isCorrect).length;
 
   return (
-    <div className="topic-detail">
+    <div className="container-exams">
       <div className="title_exam">
         <h1>POLICÍA NACIONAL DEL PERÚ</h1>
         <h2>Estudio Estrategico Policial</h2>
@@ -320,13 +320,17 @@ const SiecopolExam = () => {
       <div className="contenedor_examen">
         <div className={`contenedor_caja_preguntas ${showQuestionNumbers ? 'active' : ''}`}>
           {questions.map((_, index) => (
-            <div 
+            <label 
               key={index}
-              className={`caja_numero_preguntas ${answers[index] ? 'answered' : ''}`}
+              className={`caja_numero_preguntas ${answers[index] ? 'answered' : ''}`} 
               onClick={() => goToQuestion(index)}
             >
-              {index + 1}
-            </div>
+              <input 
+                type="radio" 
+                name="pregunta"
+              />
+              <span>{index + 1}</span>
+            </label>
           ))}
         </div>
 
@@ -337,15 +341,15 @@ const SiecopolExam = () => {
                 {currentTopic.shortName} ({currentTopic.current} de {currentTopic.total})
               </div>
             )}
+          </div>
+
+          <div className="encabezamiento_pregunta">
             <label 
               className="icono_preguntas"
               onClick={() => setShowQuestionNumbers(!showQuestionNumbers)}
             >
               <img src="/images/menu-icon.png" className="menu_icono" alt="menu" />
             </label>
-          </div>
-
-          <div className="encabezamiento_pregunta">
             <div className="cronometro">
               <span>{formatTime(timeLeft)}</span>
             </div>
@@ -412,14 +416,14 @@ const SiecopolExam = () => {
           <div className="numero_letra_respuestas">
             {getAnswerSummary() || 'Ninguna respuesta marcada'}
           </div>
+          <div className="botones">
+            <button onClick={resetExam}>Reiniciar</button>
+            <button onClick={goToPrev} disabled={currentQuestionIndex === 0}>Anterior</button>
+            <button onClick={goToNext} disabled={currentQuestionIndex === questions.length - 1}>Siguiente</button>
+          </div>
         </div>
       </div>
 
-      <div className="botones">
-        <button onClick={resetExam}>Reiniciar</button>
-        <button onClick={goToPrev} disabled={currentQuestionIndex === 0}>Anterior</button>
-        <button onClick={goToNext} disabled={currentQuestionIndex === questions.length - 1}>Siguiente</button>
-      </div>
     </div>
   );
 };

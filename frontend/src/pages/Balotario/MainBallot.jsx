@@ -44,7 +44,7 @@ const MainBallot = () => {
             <Link 
               key={topic._id} 
               to={`/balotario/${topic._id}`}
-              className="topic-card"
+              className="topics-card"
             >
               <img src='/images/logo_transparente.png' alt='topic' />
               <span>{topic.short_name || topic.name}</span>

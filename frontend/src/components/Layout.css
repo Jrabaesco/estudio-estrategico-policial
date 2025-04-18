@@ -6,5 +6,5 @@
   
   .main-content {
     flex: 1;
-    padding-top: 20px; /* Espacio para el navbar */
+    padding-top: 0; /* Espacio para el navbar */
   }

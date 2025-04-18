@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getCurrentUser } from '../../services/auth';
-import api from '../../services/api';
-import './TopicDetail.css';
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../../services/auth";
+import api from "../../services/api";
+import "./TopicDetail.css";
 
 const TopicDetail = () => {
   const { topicId } = useParams();
@@ -32,7 +32,7 @@ const TopicDetail = () => {
   useEffect(() => {
     const currentUser = getCurrentUser();
     if (!currentUser) {
-      navigate('/');
+      navigate("/");
       return;
     }
     setUser(currentUser);
@@ -41,23 +41,24 @@ const TopicDetail = () => {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         const [topicRes, questionsRes] = await Promise.all([
           api.get(`/topics/${topicId}`),
-          api.get(`/questions/topic/${topicId}`)
+          api.get(`/questions/topic/${topicId}`),
         ]);
-        
+
         setTopic(topicRes.data);
-        
+
         // Mantener orden original de preguntas pero mezclar alternativas
-        setQuestions(questionsRes.data.map(question => ({
-          ...question,
-          options: shuffleOptions(question.options)
-        })));
-        
+        setQuestions(
+          questionsRes.data.map((question) => ({
+            ...question,
+            options: shuffleOptions(question.options),
+          }))
+        );
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('No se pudo cargar el tema. Por favor intenta nuevamente.');
+        console.error("Error fetching data:", err);
+        setError("No se pudo cargar el tema. Por favor intenta nuevamente.");
       } finally {
         setIsLoading(false);
       }
@@ -67,7 +68,7 @@ const TopicDetail = () => {
 
     // Configurar cronómetro
     const timer = setInterval(() => {
-      setTime(prev => prev + 1);
+      setTime((prev) => prev + 1);
     }, 1000);
 
     return () => clearInterval(timer);
@@ -78,16 +79,19 @@ const TopicDetail = () => {
     if (answers[currentQuestionIndex]) return;
 
     const currentQuestion = questions[currentQuestionIndex];
-    const isCorrect = currentQuestion.options[answerIndex] === currentQuestion.correct_option;
-    
+    const isCorrect =
+      currentQuestion.options[answerIndex] === currentQuestion.correct_option;
+
     setSelectedAnswer(answerIndex);
-    
+
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = {
       questionId: currentQuestion._id,
       selected: answerIndex,
       isCorrect,
-      correctOption: currentQuestion.options.indexOf(currentQuestion.correct_option)
+      correctOption: currentQuestion.options.indexOf(
+        currentQuestion.correct_option
+      ),
     };
     setAnswers(newAnswers);
   };
@@ -113,9 +117,9 @@ const TopicDetail = () => {
 
   // Finalizar examen
   const handleFinish = () => {
-    if (window.confirm('¿Estás seguro que deseas finalizar el examen?')) {
-      const correct = answers.filter(a => a?.isCorrect).length;
-      navigate('/resultado', {
+    if (window.confirm("¿Estás seguro que deseas finalizar el examen?")) {
+      const correct = answers.filter((a) => a?.isCorrect).length;
+      navigate("/resultado", {
         state: {
           correct,
           incorrect: answers.length - correct,
@@ -123,8 +127,8 @@ const TopicDetail = () => {
           time,
           topic: topic?.name,
           answers,
-          questions
-        }
+          questions,
+        },
       });
     }
   };
@@ -132,16 +136,18 @@ const TopicDetail = () => {
   // Mostrar ayuda
   const showHelp = () => {
     const currentQuestion = questions[currentQuestionIndex];
-    alert(`TIP: ${currentQuestion?.tips || 'No hay sugerencias para esta pregunta'}`);
+    alert(
+      `TIP: ${currentQuestion?.tips || "No hay sugerencias para esta pregunta"}`
+    );
   };
 
   // Reiniciar examen (mezcla solo alternativas)
   const resetExam = () => {
-    if (window.confirm('¿Estás seguro que deseas reiniciar el examen?')) {
-      setQuestions(prevQuestions => 
-        prevQuestions.map(q => ({
+    if (window.confirm("¿Estás seguro que deseas reiniciar el examen?")) {
+      setQuestions((prevQuestions) =>
+        prevQuestions.map((q) => ({
           ...q,
-          options: shuffleOptions(q.options)
+          options: shuffleOptions(q.options),
         }))
       );
       setAnswers([]);
@@ -151,11 +157,15 @@ const TopicDetail = () => {
     }
   };
 
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  
   const formatTime = (seconds) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${hrs.toString().padStart(2, "0")}:${mins
+      .toString()
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   if (!user) {
@@ -171,35 +181,54 @@ const TopicDetail = () => {
   }
 
   if (!topic || questions.length === 0) {
-    return <div className="error">No se encontraron preguntas para este tema</div>;
+    return (
+      <div className="error">No se encontraron preguntas para este tema</div>
+    );
   }
 
   const currentQuestion = questions[currentQuestionIndex];
-  const correctAnswers = answers.filter(a => a?.isCorrect).length;
-  const totalAnswered = answers.filter(a => a !== undefined).length;
+  const correctAnswers = answers.filter((a) => a?.isCorrect).length;
+  const totalAnswered = answers.filter((a) => a !== undefined).length;
 
   return (
-    <div className="topic-detail">
+    <div className="container-exams">
       <div className="title_exam">
         <h1>POLICÍA NACIONAL DEL PERÚ</h1>
         <h2>Estudio Estrategico Policial</h2>
         <h3>BALOTARIO DIDÁCTICO</h3>
-        <p>SIMULADOR DEL PROCESO DE ASCENSO DE SUBOFICIALES DE ARMAS 2025 - PROMOCIÓN 2026</p>
+        <p>
+          SIMULADOR DEL PROCESO DE ASCENSO DE SUBOFICIALES DE ARMAS 2025 -
+          PROMOCIÓN 2026
+        </p>
       </div>
 
       <div className="name_usuario">
-        <p>{user.username}</p>
+        <p>Usuario: {user.username}</p>
       </div>
 
       <div className="contenedor_examen">
-        <div className={`contenedor_caja_preguntas ${showQuestionNumbers ? 'active' : ''}`}>
+        <div
+          className={`contenedor_caja_preguntas ${
+            showQuestionNumbers ? "active" : ""
+          }`}
+        >
           {questions.map((_, index) => (
-            <div 
+            <div
               key={index}
-              className={`caja_numero_preguntas ${answers[index] ? 'answered' : ''}`}
+              className={`caja_numero_preguntas ${
+                answers[index] ? "answered" : ""
+              }`}
               onClick={() => goToQuestion(index)}
             >
-              {index + 1}
+              <input
+                type="radio"
+                name="pregunta"
+                id={`radio-${index}`}
+                onChange={() => setSelectedIndex(index)}
+                checked={selectedIndex === index}
+                onClick={() => goToQuestion(index)}
+              />
+              <span onClick={() => setSelectedIndex(index)}>{index + 1}</span>
             </div>
           ))}
         </div>
@@ -207,49 +236,58 @@ const TopicDetail = () => {
         <div className="datos_preguntas">
           <div className="mobile-header">
             <div className="tema_pregunta2">{topic.short_name}</div>
-            <label 
-              className="icono_preguntas"
-              onClick={() => setShowQuestionNumbers(!showQuestionNumbers)}
-            >
-              <img src="/images/menu-icon.png" className="menu_icono" alt="icon" />
-            </label>
           </div>
 
           <div className="encabezamiento_pregunta">
+            <label
+              className="icono_preguntas"
+              onClick={() => setShowQuestionNumbers(!showQuestionNumbers)}
+            >
+              <img
+                src="/images/menu-icon.png"
+                className="menu_icono"
+                alt="icon"
+              />
+            </label>
             <div className="cronometro">
               <span>{formatTime(time)}</span>
             </div>
             <div className="tema_pregunta">{topic.name}</div>
-            <button className="finish-btn" onClick={handleFinish}>Finalizar Examen</button>
+            <button className="finish-btn" onClick={handleFinish}>
+              Finalizar Examen
+            </button>
           </div>
-          
+
           <div className="pregunta_completa">
             <div className="pregunta">
               <span>{currentQuestionIndex + 1}.</span>
               <label>{currentQuestion.question_text}</label>
             </div>
-            
+
             <div className="todas_alternativas">
               {currentQuestion.options.map((option, index) => (
-                <div 
+                <div
                   key={index}
                   className={`alternativas ${
-                    selectedAnswer === index 
-                      ? answers[currentQuestionIndex]?.isCorrect 
-                        ? 'correct' 
-                        : 'incorrect'
-                      : ''
+                    selectedAnswer === index
+                      ? answers[currentQuestionIndex]?.isCorrect
+                        ? "correct"
+                        : "incorrect"
+                      : ""
                   } ${
-                    answers[currentQuestionIndex] && 
-                    currentQuestion.options[index] === currentQuestion.correct_option
-                      ? 'show-correct' 
-                      : ''
+                    answers[currentQuestionIndex] &&
+                    currentQuestion.options[index] ===
+                      currentQuestion.correct_option
+                      ? "show-correct"
+                      : ""
                   }`}
-                  onClick={() => !answers[currentQuestionIndex] && handleAnswerSelect(index)}
+                  onClick={() =>
+                    !answers[currentQuestionIndex] && handleAnswerSelect(index)
+                  }
                 >
                   <div>
-                    <input 
-                      type="radio" 
+                    <input
+                      type="radio"
                       checked={selectedAnswer === index}
                       readOnly
                     />
@@ -258,11 +296,13 @@ const TopicDetail = () => {
                   <label>{option}</label>
                 </div>
               ))}
-              
-              <button className="ayuda" onClick={showHelp}>Ayuda</button>
+
+              <button className="ayuda" onClick={showHelp}>
+                Ayuda
+              </button>
             </div>
           </div>
-        
+
           <div className="registro_respuestas">
             <ul className="resumen_resultado">
               <li>CORRECTAS: {correctAnswers}</li>
@@ -270,15 +310,23 @@ const TopicDetail = () => {
               <li>TOTAL RESPONDIDAS: {totalAnswered}</li>
               <li>TOTAL PREGUNTAS: {questions.length}</li>
             </ul>
+            <div className="botones">
+              <button onClick={resetExam}>Reiniciar</button>
+              <button onClick={goToPrev} disabled={currentQuestionIndex === 0}>
+                Anterior
+              </button>
+              <button
+                onClick={goToNext}
+                disabled={currentQuestionIndex === questions.length - 1}
+              >
+                Siguiente
+              </button>
+              <button onClick={() => navigate("/balotario")}>
+                Escoger otro tema
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="botones">
-        <button onClick={resetExam}>Reiniciar</button>
-        <button onClick={goToPrev} disabled={currentQuestionIndex === 0}>Anterior</button>
-        <button onClick={goToNext} disabled={currentQuestionIndex === questions.length - 1}>Siguiente</button>
-        <button onClick={() => navigate('/balotario')}>Escoger otro tema</button>
       </div>
     </div>
   );

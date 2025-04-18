@@ -1,6 +1,6 @@
 .exam-container {
   position: relative;
-  min-height: 100vh;
+  min-height: 85vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -24,12 +24,17 @@
 }
 
 .exam-content {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 30px;
+  border: 1px solid #cccccc30;
   border-radius: 10px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(7px);
+  background-color: rgba(250, 251, 250, 0.144);
+  padding: 30px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .exam-header {
@@ -38,48 +43,59 @@
 }
 
 .exam-header img {
-  height: 80px;
+  height: 150px;
   margin-bottom: 15px;
 }
 
-.exam-header h1 {
-  color: #003366;
+.exam-header h4 {
+  color: #fafcfa;
   margin: 10px 0;
   font-size: 24px;
+  text-shadow: 4px 3px 3px rgba(0, 0, 0, 0.895);
 }
 
 .exam-header h2, .exam-header h3 {
-  color: #0066cc;
+  color: #fefeff;
   margin: 5px 0;
   font-size: 18px;
 }
 
 .exam-form {
+  align-items: center;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 5px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
 }
 
 .form-group label {
   font-weight: bold;
-  color: #333;
+  color: #fefdfd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .form-group select, .form-group input {
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #f8f7f77b;
+  border-radius: 10px;
   font-size: 16px;
 }
 
+.selec-tema {
+  width: 98%;
+}
+
 .start-button {
-  background-color: #003366;
+  margin-top: 10px;
+  background-color: #086b2dc5;
   color: white;
   border: none;
   padding: 12px;
@@ -90,11 +106,11 @@
 }
 
 .start-button:hover {
-  background-color: #004080;
+  background-color: #0af450fb;
 }
 
 .start-button:disabled {
-  background-color: #cccccc;
+  background-color: #b49f9fe6;
   cursor: not-allowed;
 }
 
@@ -145,6 +161,6 @@
   }
   
   .exam-header h2, .exam-header h3 {
-    font-size: 16px;
+    font-size: 14px;
   }
 }

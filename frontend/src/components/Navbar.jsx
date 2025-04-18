@@ -39,7 +39,7 @@ const Navbar = () => {
             <li><Link to="/dashboard" onClick={closeMenu}>INICIO</Link></li>
             <li><Link to="/balotario" onClick={closeMenu}>BALOTARIO DIDÁCTICO</Link></li>
             <li><Link to="/examen-temas" onClick={closeMenu}>EXÁMENES POR TEMA</Link></li>
-            <li><Link to="/siecopol" onClick={closeMenu}>EXÁMENES SIECOPOL</Link></li>
+            <li><Link to="/siecopol" onClick={closeMenu}>EXAMEN SIECOPOL</Link></li>
             <li><Link to="/audio" onClick={closeMenu}>VERSIÓN AUDIO</Link></li>
             <li><button onClick={handleLogout} className="logout-button">CERRAR SESIÓN</button></li>
           </ul>

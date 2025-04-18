@@ -1,5 +1,5 @@
 .main-nav {
-    background-color: #2c3e50;
+    background-color: rgb(17, 87, 16);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -58,7 +58,7 @@
   }
   
   .navbar ul li a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #6dee69;
   }
   
   .logout-button {
@@ -84,10 +84,10 @@
   
     .navbar {
       position: fixed;
-      top: 70px;
-      left: -100%;
+      top: 72px;
+      left: 100%;
       width: 100%;
-      background-color: #2c3e50;
+      background-color: rgb(17, 87, 16);
       transition: left 0.3s ease;
       padding: 20px;
       box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);

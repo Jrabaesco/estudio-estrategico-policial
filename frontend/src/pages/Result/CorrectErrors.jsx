@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../services/auth';
-import api from '../../services/api';
 import './CorrectErrors.css';
 
 const CorrectErrors = () => {
@@ -15,6 +14,7 @@ const CorrectErrors = () => {
   const [showQuestionNumbers, setShowQuestionNumbers] = useState(false);
   const [time, setTime] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [showColors, setShowColors] = useState(false);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -26,19 +26,20 @@ const CorrectErrors = () => {
 
     // Obtener preguntas incorrectas del estado de navegación o del localStorage
     const state = location.state;
-    let incorrectQuestions = [];
-    let prevAnswers = [];
+    const incorrectQuestions = [];
+    const previousAnswers = [];
 
     if (state && state.answers && state.questions) {
-      incorrectQuestions = state.questions.filter((_, index) => 
-        state.answers[index] && !state.answers[index].isCorrect
-      );
-      prevAnswers = state.answers.filter(a => a && !a.isCorrect);
+      state.questions.forEach((question, index) => {
+        if (state.answers[index] && !state.answers[index].isCorrect) {
+          incorrectQuestions.push(question);
+          previousAnswers.push(state.answers[index]);
+        }
+      });
     }
 
     setQuestions(incorrectQuestions);
     setAnswers(Array(incorrectQuestions.length).fill(null));
-
     setIsLoading(false);
 
     // Configurar cronómetro
@@ -116,25 +117,9 @@ const CorrectErrors = () => {
       setCurrentQuestionIndex(0);
       setSelectedAnswer(null);
       setTime(0);
+      setShowColors(false);
     }
   };
-
-  if (!user || isLoading) {
-    return <div className="loading">Cargando...</div>;
-  }
-
-  if (questions.length === 0) {
-    return (
-      <div className="no-errors">
-        <h3>¡No hay errores para corregir!</h3>
-        <button onClick={() => navigate('/dashboard')}>Volver al Dashboard</button>
-      </div>
-    );
-  }
-
-  const currentQuestion = questions[currentQuestionIndex];
-  const correctAnswers = answers.filter(a => a?.isCorrect).length;
-  const totalAnswered = answers.filter(a => a !== null).length;
 
   const formatTime = (seconds) => {
     const hrs = Math.floor(seconds / 3600);
@@ -151,8 +136,25 @@ const CorrectErrors = () => {
     }).filter(Boolean).join(', ');
   };
 
+  if (!user || isLoading) {
+    return <div className="loading">Cargando...</div>;
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="no-errors">
+        <h3>¡No hay errores para corregir!</h3>
+        <button onClick={() => navigate('/dashboard')}>Volver al Inicio</button>
+      </div>
+    );
+  }
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const correctAnswers = answers.filter(a => a?.isCorrect).length;
+  const totalAnswered = answers.filter(a => a !== null).length;
+
   return (
-    <div className="topic-detail correct-errors">
+    <div className="container-exams">
       <div className="title_exam">
         <h1>POLICÍA NACIONAL DEL PERÚ</h1>
         <h2>Estudio Estrategico Policial</h2>
@@ -167,28 +169,32 @@ const CorrectErrors = () => {
       <div className="contenedor_examen">
         <div className={`contenedor_caja_preguntas ${showQuestionNumbers ? 'active' : ''}`}>
           {questions.map((_, index) => (
-            <div 
+            <label 
               key={index}
-              className={`caja_numero_preguntas ${answers[index] ? 'answered' : ''}`}
+              className={`caja_numero_preguntas ${answers[index] ? 'answered' : ''}`} 
               onClick={() => goToQuestion(index)}
             >
-              {index + 1}
-            </div>
+              <input 
+                type="radio" 
+                name="pregunta"
+              />
+              <span>{index + 1}</span>
+            </label>
           ))}
         </div>
 
         <div className="datos_preguntas">
           <div className="mobile-header">
             <div className="tema_pregunta2">MÓDULO DE CORRECCIÓN DE ERRORES</div>
+          </div>
+
+          <div className="encabezamiento_pregunta">
             <label 
               className="icono_preguntas"
               onClick={() => setShowQuestionNumbers(!showQuestionNumbers)}
             >
               <img src="/images/menu-icon.png" className="menu_icono" alt="icon" />
             </label>
-          </div>
-
-          <div className="encabezamiento_pregunta">
             <div className="cronometro">
               <span>{formatTime(time)}</span>
             </div>
@@ -207,13 +213,13 @@ const CorrectErrors = () => {
                 <div 
                   key={index}
                   className={`alternativas ${
-                    selectedAnswer === index 
+                    showColors && selectedAnswer === index 
                       ? answers[currentQuestionIndex]?.isCorrect 
                         ? 'correct' 
                         : 'incorrect'
                       : ''
                   } ${
-                    answers[currentQuestionIndex] && 
+                    showColors && answers[currentQuestionIndex] && 
                     currentQuestion.options[index] === currentQuestion.correct_option
                       ? 'show-correct' 
                       : ''
@@ -234,6 +240,9 @@ const CorrectErrors = () => {
               
               <div className="botones_ayuda">
                 <button className="borrar" onClick={clearAnswer}>Borrar Respuesta</button>
+                <button className="activar" onClick={() => setShowColors(!showColors)}>
+                  {showColors ? 'Ocultar colores' : 'Mostrar colores'}
+                </button>
               </div>
             </div>
           </div>
@@ -250,14 +259,12 @@ const CorrectErrors = () => {
           <div className="numero_letra_respuestas">
             {getAnswerSummary()}
           </div>
+          <div className="botones">
+            <button onClick={resetExam}>Reiniciar</button>
+            <button onClick={goToPrev} disabled={currentQuestionIndex === 0}>Anterior</button>
+            <button onClick={goToNext} disabled={currentQuestionIndex === questions.length - 1}>Siguiente</button>
+          </div>
         </div>
-      </div>
-
-      <div className="botones">
-        <button onClick={resetExam}>Reiniciar</button>
-        <button onClick={goToPrev} disabled={currentQuestionIndex === 0}>Anterior</button>
-        <button onClick={goToNext} disabled={currentQuestionIndex === questions.length - 1}>Siguiente</button>
-        <button onClick={() => navigate('/dashboard')}>Volver al Dashboard</button>
       </div>
     </div>
   );

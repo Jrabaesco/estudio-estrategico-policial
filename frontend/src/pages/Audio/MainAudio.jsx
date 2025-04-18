@@ -44,9 +44,9 @@ const MainAudio = () => {
             <Link 
               key={topic._id} 
               to={`/audio/${topic._id}`}
-              className="topic-card"
+              className="topics-card"
             >
-              <img src='/images/logo_transparente.png' alt='topic' />
+              <img src='/images/img_audio.png' alt='topic' />
               <span>{topic.short_name || topic.name}</span>
             </Link>
           ))}

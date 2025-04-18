@@ -1,39 +1,117 @@
 .registro-usuario {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    position: relative;
-  }
-  
-  .registro-usuario .imgFondo {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-  }
-  
-  .registro-usuario .imgFondo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
+  background: linear-gradient(to top, rgb(41, 198, 94), rgb(15, 82, 37));
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  min-height: 100vh;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  font-family: Arial, sans-serif;
+}  
+
   .registro-usuario form {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 2rem;
-    border-radius: 8px;
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(7px);
+    background-color: rgba(243, 238, 238, 0.587);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 1);
+    flex-direction: column;
     text-align: center;
-    width: 400px;
   }
-  
+
+  .registro-usuario h4{
+    color: #043d19;
+    margin: 10px 0 5px;
+    font-size: 17px;
+    text-shadow: -2px 2px 3px #000000b3;
+    }
+
   .registro-usuario form img {
-    width: 100px;
-    margin-bottom: 1rem;
+    height: 180px;
+    border-radius: 90px;
+  }
+
+  .registro-usuario input {
+    width: 95%;
+    padding: 15px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin-top: 5px;
   }
   
-  .registro-usuario form input {
-    width: 100%;
-    padding: 0.5rem;
-    margin: 0.5rem 0;
+  .registro-usuario button {
+    width: 40%;
+    padding: 10px;
+    border: none;
+    background-color: #08672bc5;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
   }
+  
+  .registro-usuario button:hover {
+    background-color: #0af450fb;
+  }
+
+  .error-message {
+    color: red;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .success-message {
+    color: green;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  button[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  /* Estilos comunes */
+.error-message {
+  color: #ff4444;
+  margin: 10px 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.success-message {
+  color: #00C851;
+  margin: 10px 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.register-link, .login-link {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.register-link a, .login-link a {
+  color: #4285f4;
+  text-decoration: none;
+}
+
+.register-link a:hover, .login-link a:hover {
+  text-decoration: underline;
+}

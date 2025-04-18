@@ -1,86 +1,27 @@
-.siecopol-container {
-    position: relative;
-    min-height: 100vh;
-    width: 100%;
-    color: #333;
-    padding: 20px;
-  }
-  
-  .title-section {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  }
-  
-  .title-section h1 {
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .title-section h2 {
-    font-size: 1.3rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .title-section h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .user-info {
-    text-align: right;
-    margin-bottom: 1rem;
-    color: white;
-    font-weight: bold;
-  }
-  
-  .instructions-section {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 2rem;
-    border-radius: 8px;
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-  
-  .instructions-content h4 {
-    color: #2c3e50;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .instructions-content ul {
-    margin-left: 1.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  .instructions-content li {
-    margin-bottom: 0.5rem;
-  }
-  
-  .warning-section {
-    background-color: #f8d7da;
-    padding: 1rem;
-    border-left: 4px solid #dc3545;
-    margin: 1rem 0;
-  }
-  
-  .button-section {
-    text-align: center;
-    margin-top: 2rem;
-  }
-  
-  .start-exam-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .start-exam-button:hover {
-    background-color: #218838;
-  }
+.instrucciones {
+  margin: 5px 30px;
+  font-size: 14px;
+  text-align: justify;
+}
+
+.instrucciones h4 {
+  margin: 0;
+}
+
+.instrucciones p {
+  margin: 3px;
+}
+
+.advertencia {
+  color: red;
+}
+
+.button_instrucciones {
+  display: grid;
+  place-items: center;
+}
+
+.start-exam-button {
+  margin: 4px;
+  width: auto;
+}

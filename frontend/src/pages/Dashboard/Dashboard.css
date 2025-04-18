@@ -1,13 +1,15 @@
 .dashboard-container {
     position: relative;
-    min-height: 100vh;
+    top: 0;
+    min-height: 90.5vh;
+    /* background: linear-gradient(to top, rgb(41, 198, 94), rgb(15, 82, 37)); */
   }
   
   .background-image {
     position: absolute;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    /* z-index: -1; */
   }
   
   .background-image img {
@@ -45,22 +47,25 @@
   }
   
   .module-card {
-    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
     border-radius: 10px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(7px);
+    background-color: rgba(17, 87, 16, 0.753);
     padding: 2rem;
     text-align: center;
     text-decoration: none;
-    color: #2c3e50;
+    color: #ffffff;
     transition: transform 0.3s, box-shadow 0.3s;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 200px;
+    min-height: 50px;
   }
   
   .module-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.416);
   }
   
   .module-card img {
@@ -73,7 +78,7 @@
   .module-card span {
     font-size: 1.2rem;
     font-weight: bold;
-    margin-top: auto;
+    margin-top: 0;
   }
   
   @media (max-width: 768px) {
@@ -83,5 +88,9 @@
     
     .modules-grid {
       grid-template-columns: 1fr;
+    }
+    
+    .dashboard-header h1 {
+      font-size: 14px;
     }
   }

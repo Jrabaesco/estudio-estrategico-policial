@@ -16,7 +16,7 @@ const Dashboard = () => {
   return (
     <div className='dashboard-container'>
       <div className='background-image'>
-        <img src="" alt='img_fondo' />
+        <img src="/images/fondoSolo.png" alt='img_fondo' />
       </div>
       <div className="dashboard-content">
         <div className="dashboard-header">
@@ -26,22 +26,22 @@ const Dashboard = () => {
         <div className="modules-grid">
           <Link to="/balotario" className="module-card">
             <img src='/images/logo_transparente.png' alt='logo' />
-            <span>Balotario Didáctico</span>
+            <span>BALOTARIO DIDÁCTICO</span>
           </Link>
           
           <Link to="/examen-temas" className="module-card">
             <img src='/images/logo_transparente.png' alt='logo' />
-            <span>Examen por Temas</span>
+            <span>EXÁMENES POR TEMAS</span>
           </Link>
           
           <Link to="/siecopol" className="module-card">
             <img src='/images/logo_transparente.png' alt='logo' />
-            <span>Examen SIECOPOL</span>
+            <span>EXAMEN TIPO SIECOPOL</span>
           </Link>
           
           <Link to="/audio" className="module-card">
             <img src='/images/logo_transparente.png' alt='logo' />
-            <span>Versión Audio</span>
+            <span>BALOTARIO VERSIÓN AUDIO</span>
           </Link>
         </div>
       </div>

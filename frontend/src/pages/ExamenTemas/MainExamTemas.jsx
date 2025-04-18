@@ -109,7 +109,7 @@ const MainExamTemas = () => {
       <div className="exam-content">
         <div className="exam-header">
           <img src="/images/favicon.ico" alt="Logo" />
-          <h1>POLICÍA NACIONAL DEL PERÚ</h1>
+          <h4>POLICÍA NACIONAL DEL PERÚ</h4>
           <h2>Proceso de Ascenso Suboficiales de Armas 2025 - Promoción 2026</h2>
           <h3>Módulo de Examen por Temas</h3>
         </div>
@@ -118,6 +118,7 @@ const MainExamTemas = () => {
           <div className="form-group">
             <label>Selecciona un tema:</label>
             <select 
+              className='selec-tema'
               value={selectedTopic}
               onChange={(e) => {
                 setSelectedTopic(e.target.value);
@@ -136,7 +137,9 @@ const MainExamTemas = () => {
 
           <div className="form-group">
             <label>
-              Número de preguntas {maxQuestions > 0 && `(máximo ${maxQuestions})`}:
+              Número de preguntas 
+              <span>{maxQuestions > 0 && `(máximo ${maxQuestions})`}:
+              </span>
             </label>
             <input
               type="number"

@@ -28,7 +28,8 @@
   .audio-content h1 {
     font-size: 2rem;
     margin-bottom: 1rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 4px rgba(219, 15, 15, 0.5);
+    color: #f1c40f;
   }
   
   .audio-content p {
@@ -73,5 +74,13 @@
   @media (max-width: 768px) {
     .topics-grid {
       grid-template-columns: 1fr;
+    }
+
+    .audio-content h1 {
+      font-size: 14px;
+    }
+
+    .audio-content p {
+      font-size: 14px;
     }
   }

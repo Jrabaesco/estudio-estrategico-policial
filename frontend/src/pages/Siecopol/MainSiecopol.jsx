@@ -14,24 +14,24 @@ const MainSiecopol = () => {
   if (!user) return null;
 
   return (
-    <div className="siecopol-container">
-      <div className="title-section">
+    <div className="container-exams">
+      <div className="title_exam">
         <h1>POLICÍA NACIONAL DEL PERÚ</h1>
         <h2>Sistema de Evaluación del Conocimiento Policial - TIPO SIECOPOL</h2>
         <h3>Módulo de Examen Virtual</h3>
         <p>SIMULADOR DEL PROCESO DE ASCENSO DE SUBOFICIALES DE ARMAS 2025 - PROMOCIÓN 2026</p>
       </div>
 
-      <div className="user-info">
+      <div className="name_usuario">
         <p>Usuario: {user.username}</p>
       </div>
 
-      <div className="instructions-section">
-        <div className="instructions-content">
+      <div className="instrucciones">
+        <div className="instrucciones-contenido">
           <h4>Estimado(a) Usuario(a)</h4>
           <p>Usted se encuentra en el Módulo de Examen Virtual del Sistema de Evaluaciones de Conocimiento Policial (TIPO SIECOPOL), el cual ha sido desarrollado con la finalidad de generar un único examen a cada postulante a partir del Banco de Preguntas válidas seleccionadas para el presente proceso de evaluación, considerando su grado y especialidad.</p>
           
-          <div className='warning-section'>
+          <div className='advertencia'>
             <h4>Advertencia</h4>
             <ul>
               <li>Todas las acciones que realice en este equipo de cómputo durante el examen están siendo grabadas.</li>
@@ -52,7 +52,7 @@ const MainSiecopol = () => {
           <p>Dirección de Recursos Humanos de la Policía Nacional del Perú</p>
         </div>
 
-        <div className='button-section'>
+        <div className='button_instrucciones'>
           <button className="start-exam-button" onClick={handleStartExam}>
             Generar Examen Virtual
           </button>
