@@ -2,17 +2,21 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api/auth';
 
-// Registrar usuario
 export const register = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/register`, userData);
+    const response = await axios.post(`${API_URL}/register`, userData, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
     if (response.data.token) {
       localStorage.setItem('profile', JSON.stringify(response.data.result));
       localStorage.setItem('token', response.data.token);
     }
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    // Extrae el mensaje de error del backend o usa uno por defecto
+    const errorMessage = error.response?.data?.message || 'Error al registrar usuario';
+    throw new Error(errorMessage);
   }
 };
 

@@ -6,7 +6,12 @@ export const register = async (req, res) => {
   try {
     const { username, mail, password } = req.body;
 
-    // Verificar si el usuario ya existe
+    // Validar campos obligatorios
+    if (!username || !mail || !password) {
+      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    }
+
+    // Verificar si el correo ya existe
     const existingUser = await User.findOne({ mail });
     if (existingUser) {
       return res.status(400).json({ message: 'El correo ya está registrado' });
@@ -15,11 +20,11 @@ export const register = async (req, res) => {
     // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Crear nuevo usuario
+    // Crear nuevo usuario (sin _id personalizado)
     const newUser = new User({
       username,
       mail,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     await newUser.save();
@@ -33,7 +38,8 @@ export const register = async (req, res) => {
 
     res.status(201).json({ result: newUser, token });
   } catch (error) {
-    res.status(500).json({ message: 'Error al registrar usuario', error: error.message });
+    console.error('Error en registro:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
 

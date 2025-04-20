@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { register } from '../../services/auth';
 import './Register.css';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
     mail: '',
-    password: ''
+    password: '',
   });
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Para evitar doble envío
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,11 +20,22 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
     try {
       await register(formData);
-      navigate('/'); // Redirigir al login después del registro
+      alert('Usuario registrado exitosamente'); // Muestra alert en lugar de redirigir
+      // Opcional: Limpiar el formulario después del registro exitoso
+      setFormData({
+        username: '',
+        mail: '',
+        password: '',
+      });
     } catch (err) {
-      setError(err.message || 'Error al registrar usuario');
+      setError(err.message); // Muestra el mensaje del backend
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -34,7 +47,7 @@ const Register = () => {
       <form onSubmit={handleSubmit}>
         <img src='/images/logo.jpg' alt='logo' />
         <h4>REGISTRO DE USUARIOS "ESTRAPOL"</h4>
-        
+
         <div>
           <input
             type="text"
@@ -55,18 +68,28 @@ const Register = () => {
             required
           />
         </div>
-        <div>
+        <div className="password-input-container">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
-            placeholder='CONTRASEÑA'
+            placeholder='CONTRASEÑA (Mínimo 8 caracteres)'
             value={formData.password}
             onChange={handleChange}
+            minLength="8"
             required
           />
+          <button
+            type="button"
+            className="password-toggle"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
         </div>
         {error && <div className="error-message">{error}</div>}
-        <button type="submit">Registrar</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Registrando...' : 'Registrar'}
+        </button>
       </form>
     </div>
   );

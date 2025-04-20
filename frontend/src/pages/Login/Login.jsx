@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../services/auth';
 import './Login.css';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Importamos los íconos de visibilidad
 
 const Login = () => {
   const [formData, setFormData] = useState({ mail: '', password: '' });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // Estado para controlar la visibilidad
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -16,10 +18,14 @@ const Login = () => {
     e.preventDefault();
     try {
       await login(formData);
-      navigate('/dashboard'); // Redirigir al dashboard después del login
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Error al iniciar sesión');
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -37,21 +43,28 @@ const Login = () => {
           <input
             type="email"
             name="mail"
-            placeholder='CORREO CORPORATIVO'
+            placeholder='CORREO'
             value={formData.mail}
             onChange={handleChange}
             required
           />
         </div>
-        <div>
+        <div className="password-input-container">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             placeholder='CONTRASEÑA'
             value={formData.password}
             onChange={handleChange}
             required
           />
+          <button 
+            type="button" 
+            className="password-toggle"
+            onClick={togglePasswordVisibility}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
         </div>
         {error && <div className="error-message">{error}</div>}
         <button type="submit">Ingresar</button>
