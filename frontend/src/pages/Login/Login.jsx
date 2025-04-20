@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../services/auth';
 import './Login.css';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Importamos los íconos de visibilidad
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import WhatsAppChat from '../../components/WhatsAppChat';
 
 const Login = () => {
   const [formData, setFormData] = useState({ mail: '', password: '' });
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // Estado para controlar la visibilidad
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -69,6 +70,9 @@ const Login = () => {
         {error && <div className="error-message">{error}</div>}
         <button type="submit">Ingresar</button>
       </form>
+      
+      {/* Componente del Chatbot de WhatsApp */}
+      <WhatsAppChat />
     </div>
   );
 };

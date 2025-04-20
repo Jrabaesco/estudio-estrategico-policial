@@ -225,4 +225,9 @@
   .encabezamiento_pregunta3 {
     font-size: 11px;
   }
+
+  .correct-answer {
+    text-align: justify;
+    font-size: 12px;
+  }
 }

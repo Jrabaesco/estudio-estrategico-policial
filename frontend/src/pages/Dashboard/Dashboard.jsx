@@ -40,7 +40,7 @@ const Dashboard = () => {
           </Link>
           
           <Link to="/audio" className="module-card">
-            <img src='/images/logo_transparente.png' alt='logo' />
+            <img src='/images/img_audio.png' alt='logo' />
             <span>BALOTARIO VERSIÓN AUDIO</span>
           </Link>
         </div>

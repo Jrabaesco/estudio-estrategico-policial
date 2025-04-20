@@ -42,12 +42,6 @@
   margin-top: 10px;
 }
 
-.alternativas {
-  display: flex;
-  align-items: center;
-  padding: 5px;
-}
-
 .alternativas.correcta {
   background: green;
 }
