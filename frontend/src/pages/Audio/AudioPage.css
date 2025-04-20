@@ -225,25 +225,4 @@
   .encabezamiento_pregunta3 {
     font-size: 11px;
   }
-  
 }
-
-  /*
-  .playback-controls {
-    flex-direction: column;
-  }
-  
-  .question-buttons {
-    justify-content: center;
-  }
-
-  .start-question-control {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .go-to-button {
-    width: 100%;
-    margin-top: 10px;
-  }
-} */
