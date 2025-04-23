@@ -25,6 +25,7 @@ const app = express();
 const corsOptions = {
   origin: [
     process.env.CLIENT_URL,
+    'https://estudio-estrategico-policial-frontend.onrender.com',
     'http://localhost:5173' // Para desarrollo local
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -39,13 +40,8 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Conexión a MongoDB Atlas con configuración mejorada
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000
-})
+// Conexión a MongoDB Atlas (configuración actualizada)
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('✅ Conectado a MongoDB Atlas'))
 .catch(err => {
   console.error('❌ Error de conexión a MongoDB:', err);
@@ -60,7 +56,7 @@ app.use((req, res, next) => {
 
 // Configuración de rutas
 app.use('/api/auth', authRoutes);
-app.use('/api/questions', auth, questionRoutes); // Protegemos las rutas de preguntas
+app.use('/api/questions', auth, questionRoutes);
 
 // Endpoints básicos del sistema
 app.get('/health', (req, res) => {
@@ -121,8 +117,8 @@ app.use((err, req, res, next) => {
 });
 
 // Configuración del puerto
-const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, '0.0.0.0', () => {
+const PORT = process.env.PORT || 10000; // Asegúrate de que coincida con el puerto en Render
+const server = app.listen(PORT, () => {
   console.log(`🚀 Servidor backend corriendo en el puerto ${PORT}`);
   console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 CLIENT_URL: ${process.env.CLIENT_URL}`);
