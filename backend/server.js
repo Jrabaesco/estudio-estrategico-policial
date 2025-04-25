@@ -25,7 +25,6 @@ const app = express();
 const corsOptions = {
   origin: [
     process.env.CLIENT_URL,
-    'https://estudio-estrategico-policial-frontend.onrender.com',
     'http://localhost:5173' // Para desarrollo local
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
