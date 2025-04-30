@@ -82,7 +82,7 @@ export const getRandomQuestions = async (req, res) => {
 // Obtener todos los temas
 export const getTopics = async (req, res) => {
   try {
-    const topics = await Topic.find().sort({ name: 1 }); // Orden alfabético
+    const topics = await Topic.find().sort({ _id: 1 }); // Orden alfabético
     
     if (topics.length === 0) {
       return res.status(404).json({ 
