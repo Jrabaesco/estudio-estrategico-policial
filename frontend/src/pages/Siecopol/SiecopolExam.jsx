@@ -93,21 +93,22 @@ const SiecopolExam = () => {
       try {
         setIsLoading(true);
         setError(null);
-
+    
         // 1. Obtener todos los temas primero
-        const topicsResponse = await api.get('/topics');
+        const topicsResponse = await api.get('/api/topics');
         const questionsByTopic = [];
         const progress = {};
-
+        let currentIndex = 0; // Contador global de preguntas
+    
         for (const topicId of TOPICS_ORDER) {
           const count = QUESTIONS_PER_TOPIC[topicId];
           if (count > 0) {
-            const response = await api.get(`/questions/random/${topicId}/${count}`);
+            const response = await api.get(`/api/questions/random/${topicId}/${count}`);
             const topicQuestions = response.data.map(q => ({
               ...q,
               options: shuffleArray(q.options) // Mezclar alternativas
             }));
-
+    
             // Encontrar el tema correspondiente
             const topic = topicsResponse.data.find(t => t._id === topicId);
             
@@ -116,19 +117,17 @@ const SiecopolExam = () => {
               name: topic?.name || topicId,
               shortName: topic?.short_name || topicId,
               total: count,
-              indexes: Array.from(
-                { length: count }, 
-                (_, i) => questionsByTopic.length - count + i
-              )
+              indexes: Array.from({ length: count }, (_, i) => currentIndex + i)
             };
-
+    
             questionsByTopic.push(...topicQuestions);
+            currentIndex += count; // Incrementar el contador global
           }
         }
-
+    
         setQuestions(questionsByTopic);
         setTopicProgress(progress);
-
+    
       } catch (err) {
         console.error('Error loading exam data:', err);
         setError('Error al cargar los datos del examen');
@@ -355,7 +354,7 @@ const SiecopolExam = () => {
             </div>
             {currentTopic && (
               <div className="tema_pregunta">
-                {currentTopic.name} ({currentTopic.current} de {currentTopic.total})
+                {currentTopic.name} <span>({currentTopic.current} de {currentTopic.total})</span>
               </div>
             )}
             <button className="finish-btn" onClick={handleFinish}>Finalizar Examen</button>

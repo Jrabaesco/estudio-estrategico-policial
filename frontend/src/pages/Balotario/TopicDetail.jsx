@@ -43,8 +43,8 @@ const TopicDetail = () => {
         setError(null);
 
         const [topicRes, questionsRes] = await Promise.all([
-          api.get(`/topics/${topicId}`),
-          api.get(`/questions/topic/${topicId}`),
+          api.get(`/api/topics/${topicId}`),
+          api.get(`/api/questions/topic/${topicId}`),
         ]);
 
         setTopic(topicRes.data);

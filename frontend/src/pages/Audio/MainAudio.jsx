@@ -15,7 +15,7 @@ const MainAudio = () => {
 
     const fetchTopics = async () => {
       try {
-        const response = await api.get('/topics');
+        const response = await api.get('/api/topics');
         setTopics(response.data);
       } catch (error) {
         console.error('Error fetching topics:', error);

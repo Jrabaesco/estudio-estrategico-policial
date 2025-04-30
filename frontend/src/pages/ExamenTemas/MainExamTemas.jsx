@@ -22,7 +22,7 @@ const MainExamTemas = () => {
 
     const fetchTopics = async () => {
       try {
-        const response = await api.get('/topics');
+        const response = await api.get('/api/topics');
         setTopics(response.data);
       } catch (error) {
         console.error('Error fetching topics:', error);
@@ -43,7 +43,7 @@ const MainExamTemas = () => {
 
     const fetchQuestionCount = async () => {
       try {
-        const response = await api.get(`/questions/count?topicId=${selectedTopic}`);
+        const response = await api.get(`/api/questions/count?topicId=${selectedTopic}`);
         
         if (!response.data) {
           throw new Error('Respuesta inválida del servidor');

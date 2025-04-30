@@ -25,7 +25,7 @@ const app = express();
 const corsOptions = {
   origin: [
     process.env.CLIENT_URL,
-    'http://localhost:5173' // Para desarrollo local
+    //'http://localhost:5173'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -39,25 +39,30 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Conexión a MongoDB Atlas (configuración actualizada)
+// Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log('✅ Conectado a MongoDB Atlas'))
-.catch(err => {
-  console.error('❌ Error de conexión a MongoDB:', err);
-  process.exit(1);
-});
+  .then(() => console.log('✅ Conectado a MongoDB Atlas'))
+  .catch(err => {
+    console.error('❌ Error de conexión a MongoDB:', err);
+    process.exit(1);
+  });
 
-// Middleware de prueba de ruta (para debug)
+// Middleware de debug para headers
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  console.log('\n====== Headers Recibidos ======');
+  console.log('Método:', req.method);
+  console.log('Ruta:', req.originalUrl);
+  console.log('Authorization:', req.headers.authorization);
+  console.log('Content-Type:', req.headers['content-type']);
+  console.log('==============================\n');
   next();
 });
 
 // Configuración de rutas
-app.use('/api/auth', authRoutes);
-app.use('/api/questions', auth, questionRoutes);
+app.use('/api/auth', authRoutes);  // Rutas públicas de autenticación
+app.use('/api', auth, questionRoutes); // Todas las rutas protegidas bajo /api
 
-// Endpoints básicos del sistema
+// Endpoints básicos
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'healthy',
@@ -73,65 +78,41 @@ app.get('/', (req, res) => {
     environment: process.env.NODE_ENV,
     availableEndpoints: {
       auth: '/api/auth',
-      questions: '/api/questions',
+      questions: '/api/topics',
       health: '/health'
     }
   });
 });
 
-// Middleware para manejar rutas no encontradas
-app.use((req, res, next) => {
+// Manejo de errores
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     error: 'Endpoint no encontrado',
     requestedUrl: req.originalUrl,
     availableEndpoints: {
-      auth: {
-        login: 'POST /api/auth/login',
-        register: 'POST /api/auth/register'
-      },
-      questions: {
-        getAll: 'GET /api/questions',
-        create: 'POST /api/questions'
-      }
+      auth: ['POST /api/auth/login', 'POST /api/auth/register'],
+      topics: ['GET /api/topics', 'GET /api/topics/:id']
     }
   });
 });
 
-// Manejo centralizado de errores
 app.use((err, req, res, next) => {
   console.error(`[ERROR] ${err.stack}`);
-  
-  const response = {
+  res.status(500).json({
     success: false,
-    error: err.message || 'Error interno del servidor',
-  };
-
-  if (process.env.NODE_ENV !== 'production') {
-    response.stack = err.stack;
-    response.fullError = err;
-  }
-
-  res.status(err.statusCode || 500).json(response);
-});
-
-// Configuración del puerto
-const PORT = process.env.PORT || 10000; // Asegúrate de que coincida con el puerto en Render
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Servidor backend corriendo en el puerto ${PORT}`);
-  console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 CLIENT_URL: ${process.env.CLIENT_URL}`);
-  console.log(`🔒 Modo seguro: ${process.env.NODE_ENV === 'production' ? 'ACTIVADO' : 'DESACTIVADO'}`);
-});
-
-// Manejo de cierre elegante
-process.on('SIGTERM', () => {
-  console.log('👋 Recibido SIGTERM. Cerrando servidor...');
-  server.close(() => {
-    console.log('🚪 Servidor cerrado');
-    mongoose.connection.close(false, () => {
-      console.log('🚪 Conexión a MongoDB cerrada');
-      process.exit(0);
-    });
+    error: process.env.NODE_ENV !== 'production' ? err.message : 'Error interno'
   });
+});
+
+// Iniciar servidor
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor en puerto ${PORT}`);
+  console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+  console.log('Endpoints disponibles:');
+  console.log('- GET    /api/topics');
+  console.log('- GET    /api/topics/:id');
+  console.log('- POST   /api/auth/login');
+  console.log('- POST   /api/auth/register');
 });
