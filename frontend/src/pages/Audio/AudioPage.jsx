@@ -285,14 +285,10 @@ const AudioPage = () => {
                   min="1"
                   max={questions.length}
                   value={startQuestion}
-                  onChange={(e) =>
-                    setStartQuestion(
-                      Math.min(
-                        Math.max(parseInt(e.target.value) || 1, 1),
-                        questions.length
-                      )
-                    )
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setStartQuestion(value === "" ? "" : Math.min(Math.max(parseInt(value, 10), 1), questions.length));
+                  }}
                 />
               </label>
               <button onClick={goToStartQuestion} className="go-to-button">

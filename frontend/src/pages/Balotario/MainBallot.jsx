@@ -46,7 +46,7 @@ const MainBallot = () => {
               to={`/balotario/${topic._id}`}
               className="topics-card"
             >
-              <img src='/images/logo_transparente.png' alt='topic' />
+              <img src='/images/img-balotario.png' alt='topic' />
               <span>{topic.short_name || topic.name}</span>
             </Link>
           ))}

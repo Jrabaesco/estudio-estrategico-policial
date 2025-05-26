@@ -25,7 +25,7 @@ const Register = () => {
 
     try {
       await register(formData);
-      alert('Usuario registrado exitosamente'); // Muestra alert en lugar de redirigir
+      alert('Usuario registrado exitosamente'); 
       // Opcional: Limpiar el formulario después del registro exitoso
       setFormData({
         username: '',

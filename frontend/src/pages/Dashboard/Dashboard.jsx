@@ -25,7 +25,7 @@ const Dashboard = () => {
         
         <div className="modules-grid">
           <Link to="/balotario" className="module-card">
-            <img src='/images/logo_transparente.png' alt='logo' />
+            <img src='/images/img-balotario.png' alt='logo' />
             <span>BALOTARIO DIDÁCTICO</span>
           </Link>
           
@@ -35,7 +35,7 @@ const Dashboard = () => {
           </Link>
           
           <Link to="/siecopol" className="module-card">
-            <img src='/images/logo_transparente.png' alt='logo' />
+            <img src='/images/img-siecopol.png' alt='logo' />
             <span>EXAMEN TIPO SIECOPOL</span>
           </Link>
           

@@ -19,12 +19,6 @@ const ResultPage = () => {
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Calcular puntaje porcentual
-  const calculateScore = () => {
-    const percentage = (state.correct / state.total) * 100;
-    return Math.round(percentage);
-  };
-
   // Determinar la ruta de origen según el tipo de examen
   const getOriginPath = () => {
     if (state.examType === 'balotario') return '/balotario';
@@ -64,7 +58,7 @@ const ResultPage = () => {
         <h1>{getExamTitle()}</h1>
         <p>Estimado usuario, su examen virtual ha finalizado.</p>
         <p>Usted ha obtenido:</p>
-        <p className='puntaje'>{calculateScore()} PUNTO(S)</p>
+        <p className='puntaje'>{correct} PUNTO(S)</p>
         <p>Conforme al detalle siguiente:</p>
         
         <div className="result-details">

@@ -50,13 +50,13 @@ export const login = async (req, res) => {
     // Buscar usuario
     const existingUser = await User.findOne({ mail });
     if (!existingUser) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
+      return res.status(404).json({ message: 'correo invalido' });
     }
 
     // Validar contraseña
     const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: 'Credenciales inválidas' });
+      return res.status(400).json({ message: 'Contraseña inválidas' });
     }
 
     // Generar token JWT

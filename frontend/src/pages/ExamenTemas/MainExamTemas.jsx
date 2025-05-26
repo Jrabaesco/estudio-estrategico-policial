@@ -108,7 +108,7 @@ const MainExamTemas = () => {
       
       <div className="exam-content">
         <div className="exam-header">
-          <img src="/images/favicon.ico" alt="Logo" />
+          <img src="/images/logo_transparente.png" alt="Logo" />
           <h4>POLICÍA NACIONAL DEL PERÚ</h4>
           <h2>Proceso de Ascenso Suboficiales de Armas 2025 - Promoción 2026</h2>
           <h3>Módulo de Examen por Temas</h3>
@@ -147,11 +147,10 @@ const MainExamTemas = () => {
               max={maxQuestions || 1}
               value={questionCount}
               onChange={(e) => {
-                const value = Math.min(
-                  Math.max(1, parseInt(e.target.value) || 1),
-                  maxQuestions || 1
+                const value = e.target.value;
+                setQuestionCount(
+                  value === "" ? "" : Math.min(Math.max(parseInt(value, 10), 1), maxQuestions || 1)
                 );
-                setQuestionCount(value);
               }}
               disabled={!selectedTopic || maxQuestions === 0}
               required
